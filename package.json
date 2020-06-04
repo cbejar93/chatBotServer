@@ -1,0 +1,18 @@
+{
+  "name": "movies",
+  "version": "1.0.0",
+  "description": "for my bf",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "carlos",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "ngrok": "^3.2.7",
+    "node-fetch": "^2.6.0",
+    "unirest": "^0.6.0"
+  }
+}
