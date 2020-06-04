@@ -8,6 +8,12 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.use(express.static("public"));
+
+app.use(bodyParser.urlencoded({
+    extended: false
+  }));
+
 
 let tmdbAuth = "04fcae961b5a92d99e1d7f8e2df78e58"
 let v4 = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNGZjYWU5NjFiNWE5MmQ5OWUxZDdmOGUyZGY3OGU1OCIsInN1YiI6IjVlYTMxNTRhNmQxYmIyMDAyNGEyOTgzYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lchzr8N64CaMTv3ZQSM0_HRAYDp1gHks-hgbsWbHIjg"
@@ -179,5 +185,6 @@ app.get('/getType', asyncMiddleware(async (req, res) => {
     // console.log(movie);
     res.send(movie);
 }));
+
 app.listen(PORT, () => console.log(`Server at http://localhost:${port}`))
 
