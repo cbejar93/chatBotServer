@@ -1,13 +1,13 @@
 const express = require('express')
 var unirest = require("unirest");
 const fetch = require('node-fetch');
-const ngrok = require('ngrok');
 
 // const req = unirest("GET", "https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/lookup");
 
 
 const app = express();
-const port = 3030;
+const PORT = process.env.PORT || 8080;
+
 
 let tmdbAuth = "04fcae961b5a92d99e1d7f8e2df78e58"
 let v4 = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNGZjYWU5NjFiNWE5MmQ5OWUxZDdmOGUyZGY3OGU1OCIsInN1YiI6IjVlYTMxNTRhNmQxYmIyMDAyNGEyOTgzYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.lchzr8N64CaMTv3ZQSM0_HRAYDp1gHks-hgbsWbHIjg"
@@ -179,18 +179,5 @@ app.get('/getType', asyncMiddleware(async (req, res) => {
     // console.log(movie);
     res.send(movie);
 }));
-app.listen(port, () => console.log(`Server at http://localhost:${port}`))
+app.listen(PORT, () => console.log(`Server at http://localhost:${port}`))
 
-async function ngRock() {
-    try {
-        const url = await ngrok.connect({ addr: 3030 });
-        console.log('ng rock url');
-        console.log(url);
-    } catch (err) {
-        console.log(err);
-    }
-};
-
-
-
-ngRock();
