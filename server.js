@@ -1,6 +1,8 @@
 const express = require('express')
 var unirest = require("unirest");
 const fetch = require('node-fetch');
+const  bodyParser = require("body-parser");
+
 
 // const req = unirest("GET", "https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/lookup");
 
@@ -186,5 +188,5 @@ app.get('/getType', asyncMiddleware(async (req, res) => {
     res.send(movie);
 }));
 
-app.listen(PORT, () => console.log(`Server at http://localhost:${port}`))
+app.listen(PORT, () => console.log(`Server at http://localhost:${PORT}`))
 
