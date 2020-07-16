@@ -112,17 +112,19 @@ async function getApiTmdb(id, platform, page, genre) {
     if(platform ==='AmazonInstantVideo'){
         mongoPlat = 'Amazon'
     }else{
-        mongoPlat = genre;
+        
+        mongoPlat = platform;
     }
-
+    
     console.log('about to find movie in mongo')
     const movieMongo = await movieController.findByPlatformAndGenre(genre.toLowerCase(),mongoPlat);
 
     let randNum = Math.floor(Math.random() * Math.floor(movieMongo.length));
-    console.log(movieMongo[randNum]);
     foundMovie = {'messages': [{'text': movieMongo[randNum].movieName},{'text': movieMongo[randNum].movieRecap}]}
 
-    console.log(movieMongo.length);
+    console.log(`the length of the movie array is ${movieMongo.length}`);
+    console.log(`the randNum is ${randNum}`);
+
     console.log(foundMovie);
 
     return foundMovie;
@@ -136,7 +138,7 @@ function findAmovieInStreaming(movieArray) {
     let promises = [];
     for (let i = 0; i < movieArray.length; i++) {
 
-      console.log( `${movieArray[i].title} movie is tagged with index ${i}`)
+    //   console.log( `${movieArray[i].title} movie is tagged with index ${i}`)
         promises.push(new Promise(function (resolve, reject) {
             promiseFunction({movies: movieArray[i].title}, resolve, reject)
         }))
@@ -209,8 +211,8 @@ const asyncMiddleware = fn =>
       }
 
 app.get('/getType', asyncMiddleware(async (req, res) => {
-    console.log(req.query.genre);
-    console.log(req.query.platform);
+    console.log('in the controllor');
+    
     const movie = await getGenreId(req.query.genre, req.query.platform);
     // console.log(movie);
     res.send(movie);
