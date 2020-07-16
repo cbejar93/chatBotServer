@@ -2,13 +2,20 @@ const express = require('express')
 var unirest = require("unirest");
 const fetch = require('node-fetch');
 const  bodyParser = require("body-parser");
-
-
-// const req = unirest("GET", "https://utelly-tv-shows-and-movies-availability-v1.p.rapidapi.com/lookup");
+const mongoose = require('mongoose');
+const movieController = require('./movieController');
 
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+mongoose.connect(process.env.MONGODB_URI || "mongodb://movieAdmin:malikcarlos2017@ds253388.mlab.com:53388/moviedb", {useNewUrlParser: true, useUnifiedTopology: true,});
+
+const db = mongoose.connection;
+
+db.once('open', function() {
+    console.log('connected to db');
+  });
 
 app.use(express.static("public"));
 
@@ -32,7 +39,7 @@ async function getGenreId(genreType, platform) {
         }
     })
 
-    foundit = await getApiTmdb(genreId, platform, 1);
+    foundit = await getApiTmdb(genreId, platform, 1, genreType);
 
     // .then(res => res.json())
     // .then(json => {
@@ -47,7 +54,7 @@ async function getGenreId(genreType, platform) {
     return foundit;
 }
 
-async function getApiTmdb(id, platform, page) {
+async function getApiTmdb(id, platform, page, genre) {
     let foundMovie = ''
 
     const data = await fetch(`https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc&include_adult=true&include_video=false&page=${page}&with_genres=${id}`, {
@@ -95,7 +102,28 @@ async function getApiTmdb(id, platform, page) {
     }
 
     }
-    
+
+    console.log('failed to find a movie with external API');
+    console.log(genre);
+    console.log(platform);
+
+    let mongoPlat;
+
+    if(platform ==='AmazonInstantVideo'){
+        mongoPlat = 'Amazon'
+    }else{
+        mongoPlat = genre;
+    }
+
+    console.log('about to find movie in mongo')
+    const movieMongo = await movieController.findByPlatformAndGenre(genre.toLowerCase(),mongoPlat);
+
+    let randNum = Math.floor(Math.random() * Math.floor(movieMongo.length));
+    console.log(movieMongo[randNum]);
+    foundMovie = {'messages': [{'text': movieMongo[randNum].movieName},{'text': movieMongo[randNum].movieRecap}]}
+
+    console.log(movieMongo.length);
+    console.log(foundMovie);
 
     return foundMovie;
 }
