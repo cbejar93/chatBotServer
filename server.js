@@ -4,12 +4,13 @@ const fetch = require('node-fetch');
 const  bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const movieController = require('./movieController');
+const keys = require('./config/key');
 
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://movieAdmin:malikcarlos2017@ds253388.mlab.com:53388/moviedb", {useNewUrlParser: true, useUnifiedTopology: true,});
+mongoose.connect(process.env.MONGODB_URI || `mongodb://${keys.mongoUser}:${keys.mongoPassword}@${keys.mongoUri}`, {useNewUrlParser: true, useUnifiedTopology: true,});
 
 const db = mongoose.connection;
 
@@ -40,16 +41,6 @@ async function getGenreId(genreType, platform) {
     })
 
     foundit = await getApiTmdb(genreId, platform, 1, genreType);
-
-    // .then(res => res.json())
-    // .then(json => {
-    //     json.genres.forEach(genre => {
-    //         if (genre.name === genreType) {
-    //             genreId = genre.id;
-    //         }
-    //     });
-    //     foundit = await getApiTmdb(genreId, platform,  1);
-    // });
 
     return foundit;
 }
@@ -116,12 +107,20 @@ async function getApiTmdb(id, platform, page, genre) {
         mongoPlat = platform;
     }
     
-    console.log('about to find movie in mongo')
-    const movieMongo = await movieController.findByPlatformAndGenre(genre.toLowerCase(),mongoPlat);
+    console.log('about to find movie in mongo with the new method');
+
+    let streamingArray = ['Amazon', 'Hulu']
+
+    // const movieMongo = await movieController.findByPlatformAndGenre(genre.toLowerCase(),mongoPlat);
+
+    const movieMongo =  await movieController.multipleStreamingServices(genre.toLowerCase(), streamingArray);
+    
+    console.log(movieMongo)
 
     let randNum = Math.floor(Math.random() * Math.floor(movieMongo.length));
-    foundMovie = {'messages': [{'text': movieMongo[randNum].movieName},{'text': movieMongo[randNum].movieRecap}]}
 
+    foundMovie = {'messages': [{'text': movieMongo[randNum].movieName},{'text': movieMongo[randNum].movieRecap}]}
+    
     console.log(`the length of the movie array is ${movieMongo.length}`);
     console.log(`the randNum is ${randNum}`);
 
@@ -178,12 +177,30 @@ function promiseFunction(data, resolve, reject) {
         } else {
 
             resolve(res.body.results);
-
         }
-
     });
    
 }
+
+app.use((req, res, next)=>{
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    if(req.method === "OPTIONS"){
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        return res.status(200).json({});
+    }
+    next();
+  });
+
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+
+  app.use(bodyParser.json());
+
 
 const asyncMiddleware = fn =>
     (req, res, next) => {
@@ -216,6 +233,16 @@ app.get('/getType', asyncMiddleware(async (req, res) => {
     const movie = await getGenreId(req.query.genre, req.query.platform);
     // console.log(movie);
     res.send(movie);
+}));
+
+app.post('/new', asyncMiddleware(async (req,res)=>{
+    console.log('in the new post method not sure what to do.');
+    
+    let response = await movieController.submitNewMovie(req.body);
+
+    console.log(response);
+
+    res.send(response);
 }));
 
 app.listen(PORT, () => console.log(`Server at http://localhost:${PORT}`))

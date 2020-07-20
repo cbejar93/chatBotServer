@@ -1,0 +1,158 @@
+<template>
+<div id="app">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title">Movie Chatbot</h1>
+        <h2 class="subtitle">Data Entry Page for Malik :)</h2>
+      </div>
+    </div>
+  </section>
+  <body>
+    <section class="section">
+      <div class="container">
+        <h1 class="title">Add new movie section</h1>
+        <h2 class="subtitle">All fields required.</h2>
+        <div class="tile is-parent">
+          <article class="tile is-child notification">
+            <div class="content">
+              <form id="movieForm" @submit.prevent="processForm">
+                
+                <!-- Content -->
+                <section>
+                  <div class="columns">
+                    <div class="column">
+                      <b-field label="Movie Name">
+                        <b-input v-model="formData.movieName" value="Enter Here"></b-input>
+                      </b-field>
+                    </div>
+                    <div class="column">
+                      <b-field label="Platform">
+                        <b-select v-model="formData.platform" placeholder="Select a platform">
+                          <option value="AmazonInstantVideo">Amazon</option>
+                          <option value="Hulu">Hulu</option>
+                          <option value="Netflix">Netflix</option>
+                        </b-select>
+                      </b-field>
+                    </div>
+                    <div class="column">
+                      <b-field label="Genre">
+                        <b-select v-model="formData.genre" placeholder="Select a genre">
+                          <option value="Comedy">Comedy</option>
+                          <option value="Horror">Horror</option>
+                          <option value="Drama">Drama</option>
+                          <option value="Documentary">Documentary</option>
+                          <option value="Thriller">Thriller</option>
+
+                        </b-select>
+                      </b-field>
+                    </div>
+                    <div class="column">
+                      <b-field label="Original">
+                        <b-select v-model="formData.original" placeholder="Select Yes/No">
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </b-select>
+                      </b-field>
+                    </div>
+                  </div>
+
+                  <b-field label="Movie Recap" >
+                    <b-input v-model="formData.movieRecap" maxlength="200" type="textarea"></b-input>
+                  </b-field>
+                  <div class="columns">
+                    <b-button v-on:click="processForm"  type="is-primary">Submit</b-button>
+                  </div>
+                </section>
+              </form>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </body>
+</div>
+</template>
+
+<script>
+// import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  name: "App",
+  
+  data: function() {
+    return {
+        formData: {
+           
+        movieName: "",
+        platform: "",
+        original: "",
+        genre: "",
+        movieRecap: "",
+        
+      },
+      labelPosition: 'on-label'
+    };
+  },
+  methods: {
+    processForm: function() {
+      
+
+      let movieForm = {
+      movieName : this.formData.movieName,
+      platform: this.formData.platform,
+      original: this.formData.original,
+      genre: this.formData.genre,
+      movieRecap: this.formData.movieRecap
+    }
+
+      
+      console.log('movie form.')
+      console.log(movieForm);
+      const url = `http://localhost:8080/new`;
+      this.$http.post(url, this.formData).then(res=>{
+        console.log('hello in post');
+        console.log(res.data);
+      })
+      
+    }
+  }
+};
+</script>
+
+<style>
+@import "~bulma/css/bulma.css";
+.hero {
+  background-color: #121212;
+}
+
+.section {
+  background-color: #121212;
+  background-color: rgba(0, 0, 0, 0.94);
+}
+
+.label {
+  color: white !important;
+  opacity: 77%;
+}
+
+.input,
+.taginput .taginput-container.is-focusable,
+.textarea,
+.select select {
+  background-color: #212121 !important;
+  border-color: #bb86fc !important;
+  color: white !important;
+  opacity: 77%;
+}
+
+.tile {
+  background-color: #212121 !important;
+  /* background-color: rgba(0, 0, 0, 0.91)!important; */
+}
+
+h1 {
+  color: white !important;
+  opacity: 87%;
+}
+</style>
