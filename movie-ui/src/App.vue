@@ -85,11 +85,10 @@ export default {
         formData: {
            
         movieName: "",
+        movieRecap: "",
+        genre: "",
         platform: "",
         original: "",
-        genre: "",
-        movieRecap: "",
-        
       },
       labelPosition: 'on-label'
     };
@@ -109,7 +108,9 @@ export default {
       
       console.log('movie form.')
       console.log(movieForm);
-      const url = `http://localhost:8080/new`;
+      // const url = `http://localhost:8080/new`;
+      const url = `/new`;
+
       this.$http.post(url, this.formData).then(res=>{
         console.log('hello in post');
         console.log(res.data);
@@ -123,17 +124,17 @@ export default {
 <style>
 @import "~bulma/css/bulma.css";
 .hero {
-  background-color: #121212;
+  background-color: #121212 !important;
 }
 
 .section {
-  background-color: #121212;
-  background-color: rgba(0, 0, 0, 0.94);
+  background-color: #121212 !important;
+  background-color: rgba(0, 0, 0, 0.94) !important;
 }
 
 .label {
   color: white !important;
-  opacity: 77%;
+  opacity: .77 !important;
 }
 
 .input,
@@ -143,7 +144,7 @@ export default {
   background-color: #212121 !important;
   border-color: #bb86fc !important;
   color: white !important;
-  opacity: 77%;
+  opacity: .77 !important;
 }
 
 .tile {
@@ -153,6 +154,6 @@ export default {
 
 h1 {
   color: white !important;
-  opacity: 87%;
+  opacity: .87 !important;
 }
 </style>

@@ -5,10 +5,17 @@ const  bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const movieController = require('./movieController');
 const keys = require('./config/key');
+var path = require('path');
+var serveStatic = require('serve-static');
 
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// app.use(express.static('dist'));
+app.use(express.static(path.join(__dirname, './movie-ui/dist')));
+
+
 
 mongoose.connect(process.env.MONGODB_URI || `mongodb://${keys.mongoUser}:${keys.mongoPassword}@${keys.mongoUri}`, {useNewUrlParser: true, useUnifiedTopology: true,});
 
@@ -244,6 +251,11 @@ app.post('/new', asyncMiddleware(async (req,res)=>{
 
     res.send(response);
 }));
+
+app.get('*', (req, res) => {
+    console.log('useing  the fall back')
+    res.sendFile(__dirname, './movie-ui/dist/index.html');
+  });
 
 app.listen(PORT, () => console.log(`Server at http://localhost:${PORT}`))
 

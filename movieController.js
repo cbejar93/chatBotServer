@@ -1,69 +1,79 @@
 const movie = require('./Movie');
+const Movie = require('./Movie');
 
 
 module.exports = {
-    findByPlatformAndGenre: async function(id, platform){
-        
+    findByPlatformAndGenre: async function (id, platform) {
+
         const moviesResult = await movie.find()
-        .where('genre').equals(id)
-        .where('platform').equals(platform);
+            .where('genre').equals(id)
+            .where('platform').equals(platform);
         return moviesResult;
     },
 
-    variableLenghtQuery: async function(genre, platform, original ){
+    variableLenghtQuery: async function (genre, platform, original) {
         let query = movie.find();
 
-        if(genre){
+        if (genre) {
             query.where('genre', genre);
         }
-        if(platform){
+        if (platform) {
             query.where('platform', platform);
         }
-        if(original){
-            query.where('original',original)
+        if (original) {
+            query.where('original', original)
         }
 
         return await query.exec();
 
     },
 
-    multipleStreamingServices: async function(id, platforms){
-      const arrayResults = await  movie.find({platform: {$in: platforms}}).where('genre').equals(id);
-      return arrayResults;
+    multipleStreamingServices: async function (id, platforms) {
+        const arrayResults = await movie.find({ platform: { $in: platforms } }).where('genre').equals(id);
+        return arrayResults;
     },
 
-    submitNewMovie: async function(form){
-            const errors = {};
+    submitNewMovie: async function (form) {
+        const errors = {};
 
-            console.log('in the validators.');
-            console.log(form)
+        console.log('in the validators.');
+        console.log(form)
 
-            if(!form.movieName){
-                errors.movieName = "Movie Name is required."
-            }
+        if (!form.movieName) {
+            errors.movieName = "Movie Name is required."
+        }
 
 
-            if(!form.platform){
-                errors.platform = 'A platform is required.'
-            }
+        if (!form.platform) {
+            errors.platform = 'A platform is required.'
+        }
 
-            if(!form.genre){
-                errors.genre = 'A genre is required.'
-            }
+        if (!form.genre) {
+            errors.genre = 'A genre is required.'
+        }
 
-            if(!form.movieRecap){
-                errors.movieRecap = 'A movie recap is required.'
-            }
+        if (!form.movieRecap) {
+            errors.movieRecap = 'A movie recap is required.'
+        }
 
-            if(!form.original){
-                errors.original = 'Choose if it is an original.'
-            }
+        if (!form.original) {
+            errors.original = 'Choose if it is an original.'
+        }
 
-            if(Object.keys(errors).length > 0){
-                console.log('error was found.')
-                return errors;
-            }
+        if (Object.keys(errors).length > 0) {
+            console.log('error was found.')
+            return errors;
+        }
 
-            return {status: 'success'}
+        let response;
+        console.log('above the reponse.')
+        try {
+            response = await movie.create(form);
+            console.log(response);
+        } catch (ex) {
+            throw new Error(ex);
+        }
+
+        return { status: 'success' }
     }
 }
