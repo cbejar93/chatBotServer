@@ -3,18 +3,36 @@ var unirest = require("unirest");
 const fetch = require('node-fetch');
 const  bodyParser = require("body-parser");
 const mongoose = require('mongoose');
-const movieController = require('./movieController');
+const movieController = require('./controller/movieController');
+const authRoutes = require('./controller/authController');
 const keys = require('./config/key');
 var path = require('path');
 var serveStatic = require('serve-static');
-
-
+const passport = require('passport')
 const app = express();
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
+require("./services/passport");
+
+
 const PORT = process.env.PORT || 8080;
 
-// app.use(express.static('dist'));
+app.use(session({ secret: keys.seceretKey ,
+    cookie: { maxAge: 24 * 60 * 60 * 1000, secure: false }, resave: false,
+    saveUninitialized: false }));
+
+
 app.use(express.static(path.join(__dirname, './movie-ui/dist')));
 
+app.use(cookieParser(keys.seceretKey));
+
+
+
+
+
+app.use(passport.initialize());
+
+app.use(passport.session());
 
 
 mongoose.connect(process.env.MONGODB_URI || `mongodb://${keys.mongoUser}:${keys.mongoPassword}@${keys.mongoUri}`, {useNewUrlParser: true, useUnifiedTopology: true,});
@@ -116,11 +134,11 @@ async function getApiTmdb(id, platform, page, genre) {
     
     console.log('about to find movie in mongo with the new method');
 
-    let streamingArray = ['Amazon', 'Hulu']
+    // let streamingArray = ['Amazon', 'Hulu']
 
-    // const movieMongo = await movieController.findByPlatformAndGenre(genre.toLowerCase(),mongoPlat);
+    const movieMongo = await movieController.findByPlatformAndGenre(genre.toLowerCase(),mongoPlat);
 
-    const movieMongo =  await movieController.multipleStreamingServices(genre.toLowerCase(), streamingArray);
+    // const movieMongo =  await movieController.multipleStreamingServices(genre.toLowerCase(), streamingArray);
     
     console.log(movieMongo)
 
@@ -190,10 +208,13 @@ function promiseFunction(data, resolve, reject) {
 }
 
 app.use((req, res, next)=>{
-    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Origin", "http://localhost:8081");
+    res.header("Access-Control-Allow-Credentials", "true");
+
+
     res.header(
         "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-xsrf-token"
     );
     if(req.method === "OPTIONS"){
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
@@ -234,6 +255,8 @@ const asyncMiddleware = fn =>
         return array;
       }
 
+
+
 app.get('/getType', asyncMiddleware(async (req, res) => {
     console.log('in the controllor');
     
@@ -243,14 +266,29 @@ app.get('/getType', asyncMiddleware(async (req, res) => {
 }));
 
 app.post('/new', asyncMiddleware(async (req,res)=>{
-    console.log('in the new post method not sure what to do.');
     
     let response = await movieController.submitNewMovie(req.body);
 
-    console.log(response);
 
     res.send(response);
 }));
+
+app.get('/getAll', asyncMiddleware(async (req,res)=>{
+
+    let response = await movieController.getAllMovies();
+
+    res.send(response);
+}));
+
+app.post('/deleteMany', asyncMiddleware(async (req,res)=>{
+    
+    let response = await movieController.deleteMany(req.body);
+
+    res.send(response);
+
+}));
+
+authRoutes(app);
 
 app.get('*', (req, res) => {
     console.log('useing  the fall back')

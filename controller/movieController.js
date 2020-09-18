@@ -1,5 +1,5 @@
-const movie = require('./Movie');
-const Movie = require('./Movie');
+const movie = require('../models/Movie');
+const Movie = require('../models/Movie');
 
 
 module.exports = {
@@ -75,5 +75,23 @@ module.exports = {
         }
 
         return { status: 'success' }
+    },
+
+    getAllMovies: async function(){
+
+        const allMovie = await movie.find();
+
+        return allMovie;
+    },
+
+    async deleteMany(idArray){
+
+        console.log(idArray);
+
+        const result = await movie.deleteMany({_id:{$in: idArray}});
+
+        console.log(result);
+
+        return result;
     }
 }
